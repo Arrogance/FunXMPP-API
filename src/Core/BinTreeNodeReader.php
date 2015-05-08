@@ -63,6 +63,8 @@ class BinTreeNodeReader
     /**
      * @param $input
      * @return ProtocolNode / null
+     *
+     * @throws CustomException
      */
     public function nextTree($input = null)
     {
@@ -96,6 +98,8 @@ class BinTreeNodeReader
 
     /**
      * @return string $string 
+     *
+     * @throws CustomException
      */
     protected function readNibble() {
         $byte = $this->readInt8();
@@ -142,6 +146,8 @@ class BinTreeNodeReader
     /**
      * @param string $token 
      * @return string
+     *
+     * @throws CustomException
      */
     protected function getToken($token)
     {
@@ -162,6 +168,8 @@ class BinTreeNodeReader
     /**
      * @param string $token 
      * @return string
+     *
+     * @throws CustomException
      */
     protected function readString($token)
     {
@@ -214,7 +222,7 @@ class BinTreeNodeReader
     }
 
     /**
-     * @return ProtocolNode / null
+     * @return ProtocolNode
      */
     protected function nextTreeInternal()
     {
@@ -266,6 +274,7 @@ class BinTreeNodeReader
 
     /**
      *
+     * @throws CustomException
      */
     protected function readListSize($token)
     {

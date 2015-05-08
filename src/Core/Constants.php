@@ -37,6 +37,11 @@ class Constants
     const DATA_FOLDER = 'wadata';
 
     /**
+     * The relative folder to resources folder
+     */
+    const RESOURCES_FOLDER = 'Resources'
+
+    /**
      * Describes the connection status with the server
      */
     const CONNECTED_STATUS = 'connected';

@@ -82,6 +82,7 @@ class KeyStream
 
     /**
      * 
+     * @throws CustomException
      */
     public function DecodeMessage($buffer, $macOffset, $offset, $length)
     {
