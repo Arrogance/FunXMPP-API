@@ -197,32 +197,6 @@ class Helpers
     }
 
     /**
-     * 
-     */
-    public static function updateData($nameFile, $WAver, $WAToken = null)
-    {
-        $file    = __DIR__ . "/" . $nameFile;
-        $open    = fopen($file, 'r+');
-        $content = fread($open, filesize($file));
-        fclose($open);
-
-        $content = explode("\n", $content);
-
-        if ($file == __DIR__ . '/token.php') {
-            $content[22] = '    $releaseTime = \'' . $WAToken .'\';';
-        } else {
-            if ($file == __DIR__ . '/Constants.php') {
-                $content[21] = '    const WHATSAPP_VER = \'' . trim($WAver) . '\';                                                          // The WhatsApp version.';
-                $content[22] = '    const WHATSAPP_USER_AGENT = \'WhatsApp/' . trim($WAver) . ' S40Version/14.26 Device/Nokia302\';         // User agent used in request/registration code.';
-            }
-        }
-
-        $content = implode("\n", $content);
-
-        file_put_contents($file, $content);
-    }
-
-    /**
      * This function generates a paymentLink where you can extend the account-expiration.
      *
      * @param string $number Your number with international code, e.g. 49123456789
@@ -267,13 +241,32 @@ class Helpers
     /**
      * 
      */
-    public static function generateRequestToken($country, $phone)
+    public static function generateRequestToken($country, $phone, $releaseTime)
     {
         $const = 'PdA2DJyKoUrwLw1Bg6EIhzh502dF9noR9uFCllGk';
-        $releaseTime = '1430860548912';
         $token = md5($const . $releaseTime . $phone);
 
         return $token;
+    }
+
+    /**
+     * @param string $jid
+     *
+     * @return string
+     */
+    public static function parseJID($jid)
+    {
+        $parts = explode('@', $jid);
+        $parts = reset($parts);
+        return $parts;
+    }
+
+    /**
+     * 
+     */
+    public static function fileBuildPath() 
+    {
+        return join(DIRECTORY_SEPARATOR, func_get_args());
     }
 
 }

@@ -25,7 +25,7 @@ interface ExceptionInterface
 
     public function getCode();
 
-    public function getFile()
+    public function getFile();
 
     public function getLine();
 

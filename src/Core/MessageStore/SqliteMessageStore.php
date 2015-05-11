@@ -19,7 +19,7 @@
 namespace FunXMPP\Core\MessageStore;
 
 use FunXMPP\Core\MessageStore\MessageStoreInterface;
-use FunXMPP\Core\Constants;
+use FunXMPP\Core\Config;
 
 class SqliteMessageStore implements MessageStoreInterface
 {
@@ -34,7 +34,7 @@ class SqliteMessageStore implements MessageStoreInterface
      */
     public function __construct($number)
     {
-        $fileName = __DIR__ . DIRECTORY_SEPARATOR . Constants::DATA_FOLDER . DIRECTORY_SEPARATOR . 'msgstore-'.$number.'.db';
+        $fileName = __DIR__ . DIRECTORY_SEPARATOR . Config::$DATA_FOLDER . DIRECTORY_SEPARATOR . 'msgstore-'.$number.'.db';
         $createTable = !file_exists($fileName);
 
         $this->db = new \PDO("sqlite:" . $fileName, null, null, array(PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));

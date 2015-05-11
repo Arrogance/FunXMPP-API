@@ -21,7 +21,7 @@ namespace FunXMPP\Core\Exception;
 /*
  * Exception occurs when we have no active socket onnection to FunXMPP server
  */
-class ConnectionException extends Exception
+class ConnectionException extends \Exception
 {
 
 }

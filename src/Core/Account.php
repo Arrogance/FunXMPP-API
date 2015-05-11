@@ -18,31 +18,151 @@
 
 namespace FunXMPP\Core;
 
-use FunXMPP\FunXMPP;
-
 use FunXMPP\Core\Exception\CustomException;
-use FunXMPP\Core\Constants;
-use FunXMPP\Core\Server;
+use FunXMPP\Core\Config;
+
+use FunXMPP\Util\Helpers;
 
 class Account
 {
 
     /**
-     * @var FunXMPP
+     * @var Core
      */
     protected $instance;
 
     /**
-     * @var string
+     * @var mixed
      */
     protected $phoneNumber;
 
-    public function __construct(FunXMPP &$instance)
+    /**
+     * @var mixed
+     */
+    protected $identity;
+
+    public function __construct(Core &$instance)
     {
         $this->instance = $instance;
+        $this->phoneNumber = $instance->getPhoneNumber();
+        $this->identity = $instance->getIdentity();
     }
 
 	/**
+     * Request a registration code from WhatsApp.
+     *
+     * @param string $method Accepts only 'sms' or 'voice' as a value.
+     * @param string $carrier
+     *
+     * @return object
+     *   An object with server response.
+     *   - status: Status of the request (sent/fail).
+     *   - length: Registration code lenght.
+     *   - method: Used method.
+     *   - reason: Reason of the status (e.g. too_recent/missing_param/bad_param).
+     *   - param: The missing_param/bad_param.
+     *   - retry_after: Waiting time before requesting a new code.
+     *
+     * @throws CustomException
+     */
+    public function codeRequest($method = 'sms', $carrier = "T-Mobile5")
+    {
+        if (!$phone = $this->dissectPhone()) {
+            throw new CustomException('The provided phone number is not valid.');
+        }
+
+        $countryCode = ($phone['ISO3166'] != '') ? $phone['ISO3166'] : 'US';
+        $langCode    = ($phone['ISO639'] != '') ? $phone['ISO639'] : 'en';
+
+        if ($carrier != null) {
+            $mnc = $this->detectMnc(strtolower($countryCode), $carrier);
+        } else {
+            $mnc = $phone['mnc'];
+        }
+
+        // Build the token.
+        $token = Helpers::generateRequestToken($phone['country'], $phone['phone'], Config::$RELEASE_TIME);
+
+        // Build the url.
+        $host = 'https://' . Config::$FUNXMPP_REQUEST_HOST;
+        $query = array(
+            'in' => $phone['phone'],
+            'cc' => $phone['cc'],
+            'id' => $this->identity,
+            'lg' => $langCode,
+            'lc' => $countryCode,
+            'sim_mcc' => $phone['mcc'],
+            'sim_mnc' => $mnc,
+            'method' => $method,
+            'token' => $token,
+        );
+
+        $this->instance->debugPrint($query);
+
+        $response = $this->instance->getResponse($host, $query);
+
+        $this->instance->debugPrint($response);
+
+        if ($response->status == 'ok') {
+            $this->instance->eventManager()->fire("onCodeRegister",
+                array(
+                    $this->phoneNumber,
+                    $response->login,
+                    $response->pw,
+                    $response->type,
+                    $response->expiration,
+                    $response->kind,
+                    $response->price,
+                    $response->cost,
+                    $response->currency,
+                    $response->price_expiration
+                ));
+        } else if ($response->status != 'sent') {
+            if (isset($response->reason) && $response->reason == "too_recent") {
+                $this->instance->eventManager()->fire("onCodeRequestFailedTooRecent",
+                    array(
+                        $this->phoneNumber,
+                        $method,
+                        $response->reason,
+                        $response->retry_after
+                    ));
+                $minutes = round($response->retry_after / 60);
+                throw new CustomException("Code already sent. Retry after $minutes minutes.");
+
+            } else if (isset($response->reason) && $response->reason == "too_many_guesses") {
+                $this->instance->eventManager()->fire("onCodeRequestFailedTooManyGuesses",
+                    array(
+                        $this->phoneNumber,
+                        $method,
+                        $response->reason,
+                        $response->retry_after
+                    ));
+                $minutes = round($response->retry_after / 60);
+                throw new CustomException("Too many guesses. Retry after $minutes minutes.");
+
+            }  else {
+                $this->instance->eventManager()->fire("onCodeRequestFailed",
+                    array(
+                        $this->phoneNumber,
+                        $method,
+                        $response->reason,
+                        isset($response->param) ? $response->param : NULL
+                    ));
+                throw new CustomException('There was a problem trying to request the code.');
+            }
+        } else {
+            $this->instance->eventManager()->fire("onCodeRequest",
+                array(
+                    $this->phoneNumber,
+                    $method,
+                    $response->length
+                ));
+        }
+
+        return $response;
+    }
+
+    /**
      * Check if account credentials are valid.
      *
      * WARNING: WhatsApp now changes your password everytime you use this.
@@ -62,7 +182,7 @@ class Account
      *   - currency: Currency price of account.
      *   - price_expiration: Price expiration in UNIX TimeStamp.
      *
-     * @throws CustomException
+     * @throws Exception
      */
     public function checkCredentials()
     {
@@ -77,16 +197,17 @@ class Account
             $phone['cc'] = '7';
         }
 
-        $host  = 'https://' . Constants::WHATSAPP_CHECK_HOST;
+        // Build the url.
+        $host  = 'https://' . Config::$FUNXMPP_CHECK_HOST;
         $query = array(
             'cc' => $phone['cc'],
             'in' => $phone['phone'],
             'id' => $this->identity,
             'lg' => $langCode,
-            'lc' => $countryCode
+            'lc' => $countryCode,
         );
 
-        $response = $this->instance->server()->getResponse($host, $query);
+        $response = $this->instance->getResponse($host, $query);
 
         if ($response->status != 'ok') {
             $this->instance->eventManager()->fire("onCredentialsBad",
@@ -119,6 +240,94 @@ class Account
         return $response;
     }
 
+    public function update()
+    {
+        $WAData = json_decode(file_get_contents(Config::$WHATSAPP_VER_CHECKER), true);
+
+        var_dump($WAData); die();
+
+        if (Config::$WHATSAPP_VER != $WAData['e']) {
+            Config::RELEASE_TIME($WAData['h']);
+            Config::WHATSAPP_VER($WAData['e']);
+            Config::WHATSAPP_VER('WhatsApp/' . trim($WAData['e']) . ' S40Version/14.26 Device/Nokia302');
+            
+            Config::updateConfig();
+        }
+    }
+
+    /**
+     * Register account on WhatsApp using the provided code.
+     *
+     * @param integer $code
+     *   Numeric code value provided on requestCode().
+     *
+     * @return object
+     *   An object with server response.
+     *   - status: Account status.
+     *   - login: Phone number with country code.
+     *   - pw: Account password.
+     *   - type: Type of account.
+     *   - expiration: Expiration date in UNIX TimeStamp.
+     *   - kind: Kind of account.
+     *   - price: Formatted price of account.
+     *   - cost: Decimal amount of account.
+     *   - currency: Currency price of account.
+     *   - price_expiration: Price expiration in UNIX TimeStamp.
+     *
+     * @throws CustomException
+     */
+    public function codeRegister($code)
+    {
+        if (!$phone = $this->dissectPhone()) {
+            throw new CustomException('The provided phone number is not valid.');
+        }
+
+        // Build the url.
+        $host = 'https://' . Config::$FUNXMPP_REGISTER_HOST;
+        $query = array(
+            'cc' => $phone['cc'],
+            'in' => $phone['phone'],
+            'id' => $this->identity,
+            'code' => $code
+        );
+
+        $response = $this->instance->getResponse($host, $query);
+
+        if ($response->status != 'ok') {
+            $this->instance->eventManager()->fire("onCodeRegisterFailed",
+                array(
+                    $this->phoneNumber,
+                    $response->status,
+                    $response->reason,
+                    $response->retry_after
+                ));
+
+            $this->instance->debugPrint($query);
+            $this->instance->debugPrint($response);
+
+            if ($response->reason == 'old_version')
+                $this->update();
+
+            throw new CustomException("An error occurred registering the registration code from FunXMPP network. Reason: $response->reason");
+        } else {
+            $this->instance->eventManager()->fire("onCodeRegister",
+                array(
+                    $this->phoneNumber,
+                    $response->login,
+                    $response->pw,
+                    $response->type,
+                    $response->expiration,
+                    $response->kind,
+                    $response->price,
+                    $response->cost,
+                    $response->currency,
+                    $response->price_expiration
+                ));
+        }
+
+        return $response;
+    }
+
     /**
      * Dissect country code from phone number.
      *
@@ -133,7 +342,7 @@ class Account
      */
     protected function dissectPhone()
     {
-        if (($handle = fopen(__DIR__ . DIRECTORY_SEPARATOR . Constants::RESOURCES_FOLDER . DIRECTORY_SEPARATOR .'countries.csv', 'rb')) !== false) {
+        if (($handle = fopen(Helpers::fileBuildPath(__DIR__, '..', 'Resources', 'countries.csv'), 'rb')) !== false) {
             while (($data = fgetcsv($handle, 1000)) !== false) {
                 if (strpos($this->phoneNumber, $data[1]) === 0) {
                     // Return the first appearance.
@@ -183,6 +392,36 @@ class Account
             ));
 
         return false;
+    }
+
+    /**
+     * Detects mnc from specified carrier.
+     *
+     * @param string $lc          LangCode
+     * @param string $carrierName Name of the carrier
+     * @return string
+     *
+     * Returns mnc value
+     */
+    protected function detectMnc($lc, $carrierName)
+    {
+        $fp = fopen(Helpers::fileBuildPath(__DIR__, '..', 'Resources', 'networkinfo.csv'), 'r');
+        $mnc = null;
+
+        while ($data = fgetcsv($fp, 0, ',')) {
+            if ($data[4] === $lc && $data[7] === $carrierName) {
+                $mnc = $data[2];
+                break;
+            }
+        }
+
+        if ($mnc == null) {
+            $mnc = '000';
+        }
+
+        fclose($fp);
+
+        return $mnc;
     }
 
 }

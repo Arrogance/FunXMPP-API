@@ -18,7 +18,7 @@
 
 namespace FunXMPP\Core;
 
-use FunXMPP\Core\Constants;
+use FunXMPP\Core\Config;
 
 class MediaUploader
 {
@@ -108,7 +108,7 @@ class MediaUploader
         $POST = "POST " . $url . "\r\n";
         $POST .= "Content-Type: multipart/form-data; boundary=" . $boundary . "\r\n";
         $POST .= "Host: " . $host . "\r\n";
-        $POST .= "User-Agent: " . Constants::WHATSAPP_USER_AGENT . "\r\n";
+        $POST .= "User-Agent: " . Config::$WHATSAPP_USER_AGENT . "\r\n";
         $POST .= "Content-Length: " . $contentlength . "\r\n\r\n";
 
         return self::sendData($host, $POST, $hBAOS, $filepath, $mediafile, $fBAOS);

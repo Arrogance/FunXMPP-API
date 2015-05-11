@@ -62,7 +62,7 @@ class BinTreeNodeReader
 
     /**
      * @param $input
-     * @return ProtocolNode / null
+     * @return ProtocolNode
      *
      * @throws CustomException
      */

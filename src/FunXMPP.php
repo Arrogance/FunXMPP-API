@@ -18,59 +18,14 @@
 
 namespace FunXMPP;
 
-use FunXMPP\Events\EventManager;
-
 use FunXMPP\Core\Core;
-use FunXMPP\Core\Account;
-use FunXMPP\Core\Server;
 
 class FunXMPP extends Core
 {
 
     /**
-     * @var EventManager
+     * @var mixed
      */
-    protected $eventManager;
-
-    /**
-     * @var Account
-     */
-    protected $account;
-
-    /**
-     * @var Server
-     */
-    protected $server;
-
-    public function __construct()
-    {
-        $this->eventManager = new EventManager();
-        $this->account = new Account($this);
-        $this->server = new Server($this);
-    }
-
-    /**
-     * @return EventManager
-     */
-    public function eventManager()
-    {
-        return $this->eventManager;
-    }
-
-    /**
-     * @return Account
-     */
-    public function account()
-    {
-        return $this->account;
-    }
-
-    /**
-     * @return Server
-     */
-    public function server()
-    {
-        return $this->server;
-    }
+    protected $dataPath = '/home/oxik/public_html/FunXMPP-API/test/data';
 
 }
