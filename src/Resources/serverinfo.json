@@ -1,0 +1,22 @@
+{
+    "DISCONNECTED_STATUS": "disconnected",
+    "CONNECTED_STATUS": "connected",
+    "FUNXMPP_VER": "2.12.81",
+    "FUNXMPP_USER_AGENT": "WhatsApp\/2.12.81 S40Version\/14.26 Device\/Nokia302",
+    "FUNXMPP_CHECK_HOST": "v.whatsapp.net\/v2\/exist",
+    "FUNXMPP_GROUP_SERVER": "g.us",
+    "FUNXMPP_REGISTER_HOST": "v.whatsapp.net\/v2\/register",
+    "FUNXMPP_REQUEST_HOST": "v.whatsapp.net\/v2\/code",
+    "FUNXMPP_SERVER": "s.whatsapp.net",
+    "FUNXMPP_CONNECT_SERVER": ".whatsapp.net",
+    "FUNXMPP_DEVICE": "S40",
+    "FUNXMPP_VER_CHECKER": "https:\/\/coderus.openrepos.net\/whitesoft\/whatsapp_scratch",
+    "PORT": 443,
+    "TIMEOUT_SEC": 2,
+    "TIMEOUT_USEC": 0,
+    "MEDIA_FOLDER": "media",
+    "PICTURES_FOLDER": "pictures",
+    "DATA_FOLDER": "wadata",
+    "RESOURCES_FOLDER": "Resources",
+    "RELEASE_TIME": 1430860548912
+}
