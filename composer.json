@@ -1,0 +1,35 @@
+{
+    "name": "Arrogance/FunXMPP-API",
+    "description": "PHP Library to FunXMPP chat.",
+    "license": "Apache License 2.0",
+    "keywords": [
+        "FunXMPP",
+        "Chat-API"
+    ],
+    "authors": [
+        {
+            "role": "Contributors",
+            "name": "FunXMPP-API Contributing Team",
+            "homepage": "https://github.com/Arrogance/FunXMPP-API/graphs/contributors"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/Arrogance/FunXMPP-API/issues",
+        "wiki": "https://github.com/Arrogance/FunXMPP-API/wiki",
+        "source": "https://github.com/Arrogance/FunXMPP-API"
+    },
+    "autoload": {
+        "psr-4": { 
+            "FunXMPP\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">=5.3",
+        "ext-curl": "*",
+        "ext-gd" : "*",
+        "ext-sockets" : "*",
+        "ext-openssl" : "*",
+        "ext-pdo" : "*",
+        "ext-sqlite3" : "*"
+    }
+}
