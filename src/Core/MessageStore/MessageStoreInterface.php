@@ -18,7 +18,7 @@
 
 namespace FunXMPP\Core\MessageStore;
 
-class MessageStoreInterface
+interface MessageStoreInterface
 {
 
     public function saveMessage($from, $to, $txt, $id, $t);
