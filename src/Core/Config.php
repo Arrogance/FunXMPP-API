@@ -39,6 +39,7 @@ class Config
     public static $PORT;
     public static $TIMEOUT_SEC;
     public static $TIMEOUT_USEC;
+    public static $DATA_PATH;
     public static $MEDIA_FOLDER;
     public static $PICTURES_FOLDER;
     public static $DATA_FOLDER;
@@ -71,7 +72,7 @@ class Config
         $text = $data;
         fwrite($configFile, $text);
 
-        fclose($myfile);
+        fclose($configFile);
     }
 
     public static function CONNECTED_STATUS($value) 
@@ -147,6 +148,11 @@ class Config
     public static function TIMEOUT_USEC($value) 
     { 
         static::$TIMEOUT_USEC = $value; 
+    }
+
+    public static function DATA_PATH($value) 
+    { 
+        static::$DATA_PATH = $value; 
     }
 
     public static function MEDIA_FOLDER($value) 

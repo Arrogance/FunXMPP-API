@@ -149,7 +149,12 @@ abstract class Core
     /**
      * 
      */
-    protected $getMessageCounter;
+    protected $outQueue;
+
+    /**
+     * 
+     */
+    protected $lastId;
 
     /**
      * Default class constructor.
@@ -166,6 +171,8 @@ abstract class Core
     public function __construct($number, $nickname, $debug = false, $identityFile = false)
     {
         Config::generateConfig();
+        Config::DATA_PATH($this->dataPath);
+        Config::updateConfig();
 
         $this->writer = new BinTreeNodeWriter();
         $this->reader = new BinTreeNodeReader();
@@ -186,40 +193,6 @@ abstract class Core
 
         return $this;
     }
-
-    /**
-     * Create an identity string
-     *
-     * @param  mixed $identity_file IdentityFile (optional).
-     * @return string               Correctly formatted identity
-     *
-     * @throws CustomException      Error when cannot write identity data to file.
-     */
-    protected function buildIdentity($identity_file = false)
-    {
-        if ($identity_file === false) {
-            $identity_file = sprintf('%sid.%s.dat', Helpers::fileBuildPath($this->getDataPath(), Config::$DATA_FOLDER, ''), $this->phoneNumber);
-        }
-
-        if (is_readable($identity_file)) {
-            $data = urldecode(file_get_contents($identity_file));
-            $length = strlen($data);
-
-            if ($length == 20 || $length == 16) {
-                return $data;
-            }
-        }
-
-        $bytes = strtolower(openssl_random_pseudo_bytes(20));
-
-        if (@file_put_contents($identity_file, urlencode($bytes)) === false) {
-            throw new CustomException('Unable to write identity file to ' . $identity_file);
-        }
-
-        return $bytes;
-    }
-
-
 
     /**
      * Get a decoded JSON response from FunXMPP server
@@ -253,6 +226,20 @@ abstract class Core
         curl_close($ch);
 
         return json_decode($response);
+    }
+
+    /**
+     * Drain the message queue for application processing.
+     *
+     * @return ProtocolNode[]
+     *   Return the message queue list.
+     */
+    public function getMessages()
+    {
+        $ret = $this->messageQueue;
+        $this->messageQueue = array();
+
+        return $ret;
     }
 
     /**
@@ -316,6 +303,38 @@ abstract class Core
         }
 
         return $number;
+    }
+
+    /**
+     * Create an identity string
+     *
+     * @param  mixed $identity_file IdentityFile (optional).
+     * @return string               Correctly formatted identity
+     *
+     * @throws CustomException      Error when cannot write identity data to file.
+     */
+    protected function buildIdentity($identity_file = false)
+    {
+        if ($identity_file === false) {
+            $identity_file = sprintf('%sid.%s.dat', Helpers::fileBuildPath($this->getDataPath(), Config::$DATA_FOLDER, ''), $this->phoneNumber);
+        }
+
+        if (is_readable($identity_file)) {
+            $data = urldecode(file_get_contents($identity_file));
+            $length = strlen($data);
+
+            if ($length == 20 || $length == 16) {
+                return $data;
+            }
+        }
+
+        $bytes = strtolower(openssl_random_pseudo_bytes(20));
+
+        if (@file_put_contents($identity_file, urlencode($bytes)) === false) {
+            throw new CustomException('Unable to write identity file to ' . $identity_file);
+        }
+
+        return $bytes;
     }
 
     /**
@@ -494,7 +513,7 @@ abstract class Core
      */
     public function setMessageCounter($messageCounter)
     {
-        $this->getMessageCounter = $messageCounter;
+        $this->messageCounter = $messageCounter;
 
         return $this;
     }
@@ -504,7 +523,17 @@ abstract class Core
      */
     public function getMessageCounter()
     {
-        return $this->getMessageCounter;
+        return $this->messageCounter;
+    }
+
+    /**
+     * 
+     */
+    public function sumMessageCounter()
+    {
+        $this->messageCounter = $this->messageCounter+1;
+
+        return $this;
     }
 
     /**
@@ -631,6 +660,42 @@ abstract class Core
     public function getMessageQueue()
     {
         return $this->messageQueue;
+    }
+
+    /**
+     * 
+     */
+    public function setOutQueue($outQueue)
+    {
+        $this->outQueue = $outQueue;
+
+        return $this;
+    }
+
+    /**
+     *
+     */
+    public function getOutQueue()
+    {
+        return $this->outQueue;
+    }
+
+    /**
+     * 
+     */
+    public function setLastId($lastId)
+    {
+        $this->lastId = $lastId;
+
+        return $this;
+    }
+
+    /**
+     *
+     */
+    public function getLastId()
+    {
+        return $this->lastId;
     }
 
 }
