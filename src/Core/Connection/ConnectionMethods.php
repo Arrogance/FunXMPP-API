@@ -1262,14 +1262,16 @@ abstract class ConnectionMethods
             if ($node->getChild("query") != null) {
                 if (isset($this->nodeId['privacy']) && ($this->nodeId['privacy'] == $node->getAttribute('id'))) {
                     $listChild = $node->getChild(0)->getChild(0);
-                    foreach ($listChild->getChildren() as $child) {
-                        $blockedJids[] = $child->getAttribute('value');
+                    if($listChild->getChildren()) {
+                        foreach ($listChild->getChildren() as $child) {
+                            $blockedJids[] = $child->getAttribute('value');
+                        }
+                        $this->instance->eventManager()->fire("onGetPrivacyBlockedList",
+                            array(
+                                $this->instance->getPhoneNumber(),
+                                $blockedJids
+                        ));  
                     }
-                    $this->instance->eventManager()->fire("onGetPrivacyBlockedList",
-                        array(
-                            $this->instance->getPhoneNumber(),
-                            $blockedJids
-                        ));
                 }
                 $this->instance->eventManager()->fire("onGetRequestLastSeen",
                     array(
@@ -1364,10 +1366,12 @@ abstract class ConnectionMethods
                                 $name = $sublist->getAttribute("name");
                                 $broadcastLists[$id]['name'] = $name;
                                 $recipients = array();
-                                foreach ($sublist->getChildren() as $recipient) {
-                                    array_push($recipients, $recipient->getAttribute('jid'));
+                                if($sublist->getChildren()) {
+                                    foreach ($sublist->getChildren() as $recipient) {
+                                        array_push($recipients, $recipient->getAttribute('jid'));
+                                    }
+                                    $broadcastLists[$id]['recipients'] = $recipients;
                                 }
-                                $broadcastLists[$id]['recipients'] = $recipients;
                             }
                         }
                     }

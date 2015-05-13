@@ -790,7 +790,7 @@ class Connection extends ConnectionMethods
                 "id" => $msgId,
                 "xmlns" => "w:b",
                 "type" => "set",
-                "to" => Constants::WHATSAPP_SERVER
+                "to" => Config::$FUNXMPP_SERVER
             ), array($deleteNode), null);
 
         $this->sendNode($node);
