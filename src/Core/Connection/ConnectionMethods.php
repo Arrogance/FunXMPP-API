@@ -155,7 +155,7 @@ abstract class ConnectionMethods
             // TODO check what max file size whatsapp server accepts.
             if ($mediaFileInfo['filesize'] < $maxsizebytes) {
                 //Create temp file in media folder. Media folder must be writable!
-                $mediaFileInfo['filepath'] = tempnam(Helpers::fileBuildPath($this->instance->getDataPath(), Config::$DATA_FOLDER, Config::$MEDIA_FOLDER), 'WHA').'.'.$mediaFileInfo['fileextension'];
+                $mediaFileInfo['filepath'] = tempnam(Helpers::fileBuildPath(Config::$DATA_PATH, Config::$DATA_FOLDER, Config::$MEDIA_FOLDER), 'WHA').'.'.$mediaFileInfo['fileextension'];
                 $fp = fopen($mediaFileInfo['filepath'], 'w');
                 if ($fp) {
                     curl_setopt($curl, CURLOPT_NOBODY, false);
@@ -911,7 +911,8 @@ abstract class ConnectionMethods
             $this->sendAck($node, 'receipt');
         }
         if ($node->getTag() == "message") {
-            $this->instance->setMessageQueue(array_push($this->instance->getMessageQueue(), $node));
+            $messageQueue = (count($this->instance->getMessageQueue())) ? $this->instance->getMessageQueue() : array();
+            $this->instance->setMessageQueue(array_push($messageQueue, $node));
 
             if ($node->hasChild('x') && $this->lastId == $node->getAttribute('id')) {
                 $this->sendNextMessage();
