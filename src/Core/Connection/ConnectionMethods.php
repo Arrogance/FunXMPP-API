@@ -762,7 +762,7 @@ abstract class ConnectionMethods
 
         $toNodes = array();
         foreach ($targets as $target) {
-            $jid = $this->getJID($target);
+            $jid = $this->instance->getJID($target);
             $hash = array("jid" => $jid);
             $toNode = new ProtocolNode("to", $hash, null, null);
             $toNodes[] = $toNode;
