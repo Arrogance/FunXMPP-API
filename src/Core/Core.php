@@ -171,7 +171,9 @@ abstract class Core
     public function __construct($number, $nickname, $debug = false, $identityFile = false)
     {
         Config::generateConfig();
-        Config::DATA_PATH($this->dataPath);
+        if ($this->dataPath) {
+            Config::DATA_PATH($this->dataPath);
+        }
         Config::updateConfig();
 
         $this->writer = new BinTreeNodeWriter();

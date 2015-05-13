@@ -14,7 +14,7 @@
     "PORT": 443,
     "TIMEOUT_SEC": 2,
     "TIMEOUT_USEC": 0,
-    "DATA_PATH": "\/home\/oxik\/public_html\/FunXMPP-API\/test\/data",
+    "DATA_PATH": "",
     "MEDIA_FOLDER": "media",
     "PICTURES_FOLDER": "pictures",
     "DATA_FOLDER": "wadata",
