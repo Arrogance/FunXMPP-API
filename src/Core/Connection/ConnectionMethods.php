@@ -187,12 +187,14 @@ abstract class ConnectionMethods
                 $mediaFileInfo['filepath'] = $filepath;
                 $mediaFileInfo['fileextension'] = pathinfo($filepath, PATHINFO_EXTENSION);
                 $mediaFileInfo['filemimetype'] = Helpers::get_mime($filepath);
+
+                $this->instance->setMediaFileInfo($mediaFileInfo);
+
                 return true;
             } else {
                 //File too big
                 return false;
             }
-            $this->instance->setMediaFileInfo($mediaFileInfo);
         }
         //Couldn't tell what file was, local or URL.
         return false;
