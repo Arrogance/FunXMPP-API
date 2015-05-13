@@ -254,7 +254,7 @@ abstract class Core
     public function setChallengeFilename($number)
     {
         $this->challengeFilename = sprintf('%sid.%s.dat', 
-            Helpers::fileBuildPath($this->getDataPath(), Config::$DATA_FOLDER, ''), 
+            Helpers::fileBuildPath(Config::$DATA_PATH, Config::$DATA_FOLDER, ''), 
             $this->phoneNumber);
 
         return $this;

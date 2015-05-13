@@ -51,6 +51,8 @@ class Config
      */
     public static function generateConfig()
     {
+        Config::checkConfigFile();
+
         $config = file_get_contents(Helpers::fileBuildPath(__DIR__, '..', 'Resources', 'serverinfo.json'));
         $configArray = json_decode($config, true);
 
@@ -73,6 +75,19 @@ class Config
         fwrite($configFile, $text);
 
         fclose($configFile);
+    }
+
+    public static function checkConfigFile()
+    {
+        if (@file_exists((Helpers::fileBuildPath(__DIR__, '..', 'Resources', 'serverinfo.json')))) {
+            return;
+        }
+        else if (!@file_exists((Helpers::fileBuildPath(__DIR__, '..', 'Resources', 'serverinfo.json.dist')))) {
+            throw new CustomException('Unable to open serverinfo.json.dist file.');
+        }
+
+        $config = file_get_contents(Helpers::fileBuildPath(__DIR__, '..', 'Resources', 'serverinfo.json.dist'));
+        file_put_contents(Helpers::fileBuildPath(__DIR__, '..', 'Resources', 'serverinfo.json'), $config);
     }
 
     public static function CONNECTED_STATUS($value) 
