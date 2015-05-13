@@ -18,36 +18,17 @@
 
 namespace FunXMPP\Core;
 
+use FunXMPP\Core\Config\ConfigMethods;
+
 use FunXMPP\Core\Exception\CustomException;
 use FunXMPP\Util\Helpers;
 
-class Config
+class Config extends ConfigMethods
 {
 
-    public static $DISCONNECTED_STATUS = 'disconnected';
-    public static $CONNECTED_STATUS = 'connected';
-    public static $FUNXMPP_VER;
-    public static $FUNXMPP_USER_AGENT;
-    public static $FUNXMPP_CHECK_HOST;
-    public static $FUNXMPP_GROUP_SERVER;
-    public static $FUNXMPP_REGISTER_HOST;
-    public static $FUNXMPP_REQUEST_HOST;
-    public static $FUNXMPP_SERVER;
-    public static $FUNXMPP_CONNECT_SERVER;
-    public static $FUNXMPP_DEVICE;
-    public static $FUNXMPP_VER_CHECKER;
-    public static $PORT;
-    public static $TIMEOUT_SEC;
-    public static $TIMEOUT_USEC;
-    public static $DATA_PATH;
-    public static $MEDIA_FOLDER;
-    public static $PICTURES_FOLDER;
-    public static $DATA_FOLDER;
-    public static $RESOURCES_FOLDER;
-    public static $RELEASE_TIME;
-
     /**
-     * 
+     * Read and save into static variables the settings stored in serverinfo.json
+     * file. But first call checkConfigFile() method to verify if files are ok.
      */
     public static function generateConfig()
     {
@@ -61,6 +42,9 @@ class Config
         }
     }
 
+    /**
+     * Save this class static variables into the serverinfo.json file.
+     */
     public static function updateConfig()
     {
         $class = new \ReflectionClass('FunXMPP\\Core\\Config');
@@ -77,6 +61,10 @@ class Config
         fclose($configFile);
     }
 
+    /**
+     * Check of the serverinfo.json file exists. If not, then copy all settings 
+     * from the serverinfo.json.dist
+     */
     public static function checkConfigFile()
     {
         if (@file_exists((Helpers::fileBuildPath(__DIR__, '..', 'Resources', 'serverinfo.json')))) {
@@ -88,111 +76,6 @@ class Config
 
         $config = file_get_contents(Helpers::fileBuildPath(__DIR__, '..', 'Resources', 'serverinfo.json.dist'));
         file_put_contents(Helpers::fileBuildPath(__DIR__, '..', 'Resources', 'serverinfo.json'), $config);
-    }
-
-    public static function CONNECTED_STATUS($value) 
-    { 
-        static::$CONNECTED_STATUS = $value; 
-    }
-
-    public static function DISCONNECTED_STATUS($value) 
-    { 
-        static::$DISCONNECTED_STATUS = $value; 
-    }
-
-    public static function FUNXMPP_VER($value) 
-    { 
-        static::$FUNXMPP_VER = $value; 
-    }
-    
-    public static function FUNXMPP_USER_AGENT($value) 
-    { 
-        static::$FUNXMPP_USER_AGENT = $value; 
-    }
-
-    public static function FUNXMPP_CHECK_HOST($value) 
-    { 
-        static::$FUNXMPP_CHECK_HOST = $value; 
-    }
-
-    public static function FUNXMPP_GROUP_SERVER($value) 
-    { 
-        static::$FUNXMPP_GROUP_SERVER = $value; 
-    }
-
-    public static function FUNXMPP_REQUEST_HOST($value)
-    {
-        static::$FUNXMPP_REQUEST_HOST = $value;
-    }
-
-    public static function FUNXMPP_REGISTER_HOST($value) 
-    { 
-        static::$FUNXMPP_REGISTER_HOST = $value; 
-    }
-
-    public static function FUNXMPP_SERVER($value) 
-    { 
-        static::$FUNXMPP_SERVER = $value; 
-    }
-
-    public static function FUNXMPP_CONNECT_SERVER($value) 
-    { 
-        static::$FUNXMPP_CONNECT_SERVER = $value; 
-    }
-
-    public static function FUNXMPP_DEVICE($value) 
-    { 
-        static::$FUNXMPP_DEVICE = $value; 
-    }
-
-    public static function FUNXMPP_VER_CHECKER($value) 
-    { 
-        static::$FUNXMPP_VER_CHECKER = $value; 
-    }
-
-    public static function PORT($value) 
-    { 
-        static::$PORT = $value; 
-    }
-
-    public static function TIMEOUT_SEC($value) 
-    { 
-        static::$TIMEOUT_SEC = $value; 
-    }
-
-    public static function TIMEOUT_USEC($value) 
-    { 
-        static::$TIMEOUT_USEC = $value; 
-    }
-
-    public static function DATA_PATH($value) 
-    { 
-        static::$DATA_PATH = $value; 
-    }
-
-    public static function MEDIA_FOLDER($value) 
-    { 
-        static::$MEDIA_FOLDER = $value; 
-    }
-
-    public static function PICTURES_FOLDER($value) 
-    { 
-        static::$PICTURES_FOLDER = $value; 
-    }
-
-    public static function DATA_FOLDER($value) 
-    { 
-        static::$DATA_FOLDER = $value; 
-    }
-
-    public static function RESOURCES_FOLDER($value) 
-    { 
-        static::$RESOURCES_FOLDER = $value; 
-    }
-
-    public static function RELEASE_TIME($value) 
-    { 
-        static::$RELEASE_TIME = $value; 
     }
 
 }
