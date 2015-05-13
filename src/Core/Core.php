@@ -171,10 +171,14 @@ abstract class Core
     public function __construct($number, $nickname, $debug = false, $identityFile = false)
     {
         Config::generateConfig();
-        if ($this->dataPath) {
+        if (!empty($this->dataPath)) {
             Config::DATA_PATH($this->dataPath);
         }
         Config::updateConfig();
+
+        if (!Config::$DATA_PATH) {
+            throw new CustomException('You need to set a DATA_PATH');
+        }
 
         $this->writer = new BinTreeNodeWriter();
         $this->reader = new BinTreeNodeReader();
@@ -318,7 +322,7 @@ abstract class Core
     protected function buildIdentity($identity_file = false)
     {
         if ($identity_file === false) {
-            $identity_file = sprintf('%sid.%s.dat', Helpers::fileBuildPath($this->getDataPath(), Config::$DATA_FOLDER, ''), $this->phoneNumber);
+            $identity_file = sprintf('%sid.%s.dat', Helpers::fileBuildPath(Config::$DATA_PATH, Config::$DATA_FOLDER, ''), $this->phoneNumber);
         }
 
         if (is_readable($identity_file)) {
