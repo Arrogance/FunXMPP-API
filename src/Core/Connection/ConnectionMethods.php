@@ -147,6 +147,7 @@ abstract class ConnectionMethods
 
             // While we're here, get mime type and filesize and extension
             $info = curl_getinfo($curl);
+
             $mediaFileInfo['filesize'] = $info['download_content_length'];
             $mediaFileInfo['filemimetype'] = $info['content_type'];
             $mediaFileInfo['fileextension'] = pathinfo(parse_url($mediaFileInfo['url'], PHP_URL_PATH), PATHINFO_EXTENSION);
@@ -155,7 +156,7 @@ abstract class ConnectionMethods
             // TODO check what max file size whatsapp server accepts.
             if ($mediaFileInfo['filesize'] < $maxsizebytes) {
                 //Create temp file in media folder. Media folder must be writable!
-                $mediaFileInfo['filepath'] = tempnam(Helpers::fileBuildPath(Config::$DATA_PATH, Config::$DATA_FOLDER, Config::$MEDIA_FOLDER), 'WHA').'.'.$mediaFileInfo['fileextension'];
+                $mediaFileInfo['filepath'] = tempnam(Helpers::fileBuildPath(Config::$DATA_PATH, Config::$MEDIA_FOLDER), 'WHA');
                 $fp = fopen($mediaFileInfo['filepath'], 'w');
                 if ($fp) {
                     curl_setopt($curl, CURLOPT_NOBODY, false);
@@ -168,6 +169,8 @@ abstract class ConnectionMethods
                     curl_close($curl);
                     return false;
                 }
+                $mediaFileInfo['filename'] = pathinfo(parse_url($mediaFileInfo['url'], PHP_URL_PATH), PATHINFO_FILENAME).'.'.$mediaFileInfo['fileextension'];
+
                 //Success
                 curl_close($curl);
                 $this->instance->setMediaFileInfo($mediaFileInfo);
@@ -261,7 +264,9 @@ abstract class ConnectionMethods
         if (isset($this->instance->getMediaFileInfo()['url'])) {
             if ($storeURLmedia) {
                 if (is_file($this->instance->getMediaFileInfo()['filepath'])) {
-                    rename($this->instance->getMediaFileInfo()['filepath'], $this->instance->getMediaFileInfo()['filepath'] . $this->instance->getMediaFileInfo()['fileextension']);
+                    $dest = Helpers::fileBuildPath(Config::$DATA_PATH, Config::$MEDIA_FOLDER, $this->instance->getMediaFileInfo()['filename']);
+                    rename($this->instance->getMediaFileInfo()['filepath'], $dest);
+                    chmod($dest, 0755);
                 }
             } else {
                 if (is_file($this->instance->getMediaFileInfo()['filepath'])) {
@@ -325,7 +330,7 @@ abstract class ConnectionMethods
     }
 
     /**
-     * Have we an active connection with FunXMPP AND a valid login already?
+     * Have we an active connection with FunXMPP network AND a valid login already?
      *
      * @return bool
      */
@@ -913,8 +918,9 @@ abstract class ConnectionMethods
             $this->sendAck($node, 'receipt');
         }
         if ($node->getTag() == "message") {
-            $messageQueue = (count($this->instance->getMessageQueue())) ? $this->instance->getMessageQueue() : array();
-            $this->instance->setMessageQueue(array_push($messageQueue, $node));
+            if (!empty($this->instance->getMessageQueue()) && is_array($this->instance->getMessageQueue())) {
+                $this->instance->setMessageQueue(array_push($this->instance->getMessageQueue(), $node));            
+            }
 
             if ($node->hasChild('x') && $this->lastId == $node->getAttribute('id')) {
                 $this->sendNextMessage();
