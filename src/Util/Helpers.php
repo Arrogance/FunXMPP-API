@@ -150,20 +150,23 @@ class Helpers
      */
     public static function createVideoIcon($file)
     {
-        /* should install ffmpeg for the method to work successfully  */
-        if (self::checkFFMPEG()) {
-            //generate thumbnail
-            $preview = sys_get_temp_dir() . '/' . md5($file) . '.jpg';
-            @unlink($preview);
-
-            //capture video preview
-            $command = "ffmpeg -i \"" . $file . "\" -f mjpeg -ss 00:00:01 -vframes 1 \"" . $preview . "\"";
-            exec($command);
-
-            return self::createIconGD($preview);
+        if (self::checkAVCONV()) {
+            $command = 'avconv';
+        } else if (self::checkFFMPEG()) {
+            $command = 'ffmpeg';
         } else {
             return base64_decode(self::videoThumbnail());
         }
+
+        //generate thumbnail
+        $preview = sys_get_temp_dir() . '/' . md5($file) . '.jpg';
+        @unlink($preview);
+
+        //capture video preview
+        $command = "{$command} -i \"" . $file . "\" -f mjpeg -ss 00:00:01 -vframes 1 \"" . $preview . "\"";
+        exec($command);
+
+        return self::createIconGD($preview);
     }
 
     /**
@@ -171,13 +174,27 @@ class Helpers
      */
     public static function checkFFMPEG()
     {
-        //check if ffmpeg is installed.
+        // Check if ffmpeg is installed.
         $output = array();
-        $returnvalue = false;
+        $returnValue = false;
 
-        exec('ffmpeg -version', $output, $returnvalue);
+        exec('ffmpeg -version', $output, $returnValue);
 
-        return ($returnvalue === 0);
+        return ($returnValue === 0);
+    }
+
+    /**
+     * 
+     */
+    public static function checkAVCONV()
+    {
+        // Check if avconv is installed.
+        $output = array();
+        $returnValue = false;
+
+        exec('avconv -version', $output, $returnValue);
+
+        return ($returnValue === 0);
     }
 
     /**
