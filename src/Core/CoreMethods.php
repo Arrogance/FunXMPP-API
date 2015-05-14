@@ -180,6 +180,7 @@ abstract class CoreMethods implements CoreInterface
             throw new CustomException('You need to set a DATA_PATH');
         }
 
+
         $this->writer = new BinTreeNodeWriter();
         $this->reader = new BinTreeNodeReader();
         $this->debug = $debug;
@@ -196,6 +197,10 @@ abstract class CoreMethods implements CoreInterface
         $this->name         = $nickname;
         $this->loginStatus  = Config::$DISCONNECTED_STATUS;
         $this->eventManager = new EventManager();
+
+        if (Config::$STORE_MESSAGES === true) {
+            $this->messageStore = new SqliteMessageStore($number);
+        }
 
         return $this;
     }

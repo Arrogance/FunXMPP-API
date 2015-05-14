@@ -42,5 +42,6 @@ interface ConfigInterface
     public static function DATA_FOLDER($value);
     public static function RESOURCES_FOLDER($value);
     public static function RELEASE_TIME($value);
+    public static function STORE_MESSAGES($value);
 
 }

@@ -42,6 +42,7 @@ abstract class ConfigMethods implements ConfigInterface
     public static $DATA_FOLDER;
     public static $RESOURCES_FOLDER;
     public static $RELEASE_TIME;
+    public static $STORE_MESSAGES;
 
     /**
      * Set CONNECTED_STATUS variable
@@ -251,6 +252,16 @@ abstract class ConfigMethods implements ConfigInterface
     public static function RELEASE_TIME($value) 
     { 
         static::$RELEASE_TIME = $value; 
+    }
+
+    /**
+     * Set STORE_MESSAGES variable
+     *
+     * @param bool $value
+     */
+    public static function STORE_MESSAGES($value)
+    {
+        static::$STORE_MESSAGES = $value;
     }
 
 }

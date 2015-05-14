@@ -29,8 +29,6 @@ use FunXMPP\Core\SyncResult;
 use FunXMPP\Core\ProtocolNode;
 use FunXMPP\Core\MediaUploader;
 
-use FunXMPP\Core\MessageStore\SqliteMessageStore;
-
 use FunXMPP\Util\Helpers;
 
 class Connection extends ConnectionMethods
@@ -59,7 +57,6 @@ class Connection extends ConnectionMethods
     public function __construct(Core &$instance)
     {
         $this->instance = $instance;
-        $this->messageStore = new SqliteMessageStore($instance->getPhoneNumber());
         $instance->setConnection($this);
     }
 
@@ -1221,7 +1218,7 @@ class Connection extends ConnectionMethods
         $this->waitForServer($id);
 
         if ($this->instance->getMessageStore() !== null) {
-            $this->messageStore->saveMessage($this->instannce->getPhoneNumber(), $to, $txt, $id, time());
+            $this->instance->getMessageStore()->saveMessage($this->instannce->getPhoneNumber(), $to, $txt, $id, time());
         }
 
         return $id;

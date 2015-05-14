@@ -943,8 +943,14 @@ abstract class ConnectionMethods
                             $node->getChild("body")->getData()
                         ));
 
-                    if ($this->instance->getMessageStore() !== null) {
-                        $this->instance->getMessageStore()->saveMessage($node->getAttribute('from'), $this->instance->getPhoneNumber(), $node->getChild("body")->getData(), $node->getAttribute('id'), $node->getAttribute('t'));
+                    if ($this->instance->getMessageStore()) {
+                        $this->instance->getMessageStore()->saveMessage(
+                            $node->getAttribute('from'), 
+                            $this->instance->getPhoneNumber(), 
+                            $node->getChild("body")->getData(), 
+                            $node->getAttribute('id'), 
+                            $node->getAttribute('t')
+                        );
                     }
                 } else {
                     //group chat message

@@ -19,5 +19,6 @@
     "PICTURES_FOLDER": "pictures",
     "DATA_FOLDER": "wadata",
     "RESOURCES_FOLDER": "Resources",
-    "RELEASE_TIME": 1430860548912
+    "RELEASE_TIME": 1430860548912,
+    "STORE_MESSAGES": false
 }
